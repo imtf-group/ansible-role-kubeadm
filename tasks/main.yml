@@ -1,6 +1,6 @@
 - name: Get latest kubeadm release version
   uri:
-    url: http://com.imtf.kubeadm.installer.s3-website-eu-west-1.amazonaws.com/release.txt
+    url: "{{ archive_root_url }}/release.txt"
     return_content: yes
   register: release_version
 
