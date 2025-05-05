@@ -1,0 +1,26 @@
+- name: Get latest kubeadm release version
+  uri:
+    url: http://com.imtf.kubeadm.installer.s3-website-eu-west-1.amazonaws.com/release.txt
+    return_content: yes
+  register: release_version
+
+- name: Download kubeadm tar.gz
+  get_url:
+    url: "{{ archive_root_url }}/kubeadm-{{ release_version.content | trim }}-{{ ansible_architecture }}.tar.gz"
+    dest: /tmp/kubeadm.tar.gz
+
+- name: Extract kubeadm archive
+  unarchive:
+    src: /tmp/kubeadm.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Run install-dependencies.sh
+  command: bash install-dependencies.sh
+  args:
+    chdir: /tmp
+
+- name: Clean up kubeadm archive
+  file:
+    path: /tmp/kubeadm.tar.gz
+    state: absent
