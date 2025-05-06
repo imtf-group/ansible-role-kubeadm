@@ -1,7 +1,7 @@
 - name: Get latest kubeadm release version
   uri:
     url: "{{ archive_root_url }}/release.txt"
-    return_content: yes
+    return_content: true
   register: release_version
 
 - name: Download kubeadm tar.gz
@@ -13,7 +13,7 @@
   unarchive:
     src: /tmp/kubeadm.tar.gz
     dest: /tmp
-    remote_src: yes
+    remote_src: true
 
 - name: Run install-dependencies.sh
   command: bash install-dependencies.sh
