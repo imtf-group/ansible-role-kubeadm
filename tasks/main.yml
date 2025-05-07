@@ -15,7 +15,7 @@
 
 - name: Get latest kubeadm release version
   uri:
-    url: "{{ archive_root_url }}/{{ cluster_name }}release.txt"
+    url: "{{ archive_root_url }}/{{ cluster_name }}-release.txt"
     return_content: true
   register: release_version
 
