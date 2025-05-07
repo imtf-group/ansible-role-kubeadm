@@ -8,38 +8,37 @@
     path: /usr/local/bin/kubeadm
   register: kubeadm_stat
 
-- name: Fail this host because kubeadm is already installed
-  fail:
-    msg: "kubeadm is already installed at /usr/local/bin/kubeadm"
-  when: kubeadm_stat.stat.exists
+- name: Install kubeadm if not present
+  block:
+    - name: Get latest kubeadm release version
+      uri:
+        url: "{{ archive_root_url }}/{{ cluster_name }}-release.txt"
+        return_content: true
+      register: release_version
 
-- name: Get latest kubeadm release version
-  uri:
-    url: "{{ archive_root_url }}/{{ cluster_name }}-release.txt"
-    return_content: true
-  register: release_version
+    - name: get architecture
+      command: dpkg --print-architecture
+      register: architecture
 
-- name: get architecture
-  command: dpkg --print-architecture
-  register: architecture
+    - name: Download kubeadm tar.gz
+      get_url:
+        url: "{{ archive_root_url }}/kubeadm-{{ release_version.content | trim }}-{{ architecture.stdout }}.tar.gz"
+        dest: /tmp/kubeadm.tar.gz
 
-- name: Download kubeadm tar.gz
-  get_url:
-    url: "{{ archive_root_url }}/kubeadm-{{ release_version.content | trim }}-{{ architecture.stdout }}.tar.gz"
-    dest: /tmp/kubeadm.tar.gz
+    - name: Extract kubeadm archive
+      unarchive:
+        src: /tmp/kubeadm.tar.gz
+        dest: /tmp
+        remote_src: true
 
-- name: Extract kubeadm archive
-  unarchive:
-    src: /tmp/kubeadm.tar.gz
-    dest: /tmp
-    remote_src: true
+    - name: Run install-dependencies.sh
+      command: bash install-dependencies.sh
+      args:
+        chdir: /tmp
 
-- name: Run install-dependencies.sh
-  command: bash install-dependencies.sh
-  args:
-    chdir: /tmp
+    - name: Clean up kubeadm archive
+      file:
+        path: /tmp/kubeadm.tar.gz
+        state: absent
 
-- name: Clean up kubeadm archive
-  file:
-    path: /tmp/kubeadm.tar.gz
-    state: absent
+  when: not kubeadm_stat.stat.exists
