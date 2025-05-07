@@ -3,6 +3,16 @@
     that:
       - cluster_name is defined
 
+- name: Check for kubeadm installation
+  command: which kubeadm
+  register: kubeadm_check
+  ignore_errors: yes
+
+- name: Fail if kubeadm is already installed
+  fail:
+    msg: "kubeadm is already installed at {{ kubeadm_check.stdout }}"
+  when: kubeadm_check.rc == 0
+
 - name: Get latest kubeadm release version
   uri:
     url: "{{ archive_root_url }}/{{ cluster_name }}release.txt"
