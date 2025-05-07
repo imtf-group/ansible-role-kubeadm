@@ -3,15 +3,15 @@
     that:
       - cluster_name is defined
 
-- name: Check for kubeadm installation
-  command: which kubeadm
-  register: kubeadm_check
-  ignore_errors: yes
+- name: Check if kubeadm is present at /usr/local/bin/kubeadm
+  stat:
+    path: /usr/local/bin/kubeadm
+  register: kubeadm_stat
 
-- name: Fail if kubeadm is already installed
+- name: Fail this host because kubeadm is already installed
   fail:
-    msg: "kubeadm is already installed at {{ kubeadm_check.stdout }}"
-  when: kubeadm_check.rc == 0
+    msg: "kubeadm is already installed at /usr/local/bin/kubeadm"
+  when: kubeadm_stat.stat.exists
 
 - name: Get latest kubeadm release version
   uri:
@@ -20,8 +20,7 @@
   register: release_version
 
 - name: get architecture
-  shell:
-    cmd: "dpkg --print-architecture"
+  command: dpkg --print-architecture
   register: architecture
 
 - name: Download kubeadm tar.gz
