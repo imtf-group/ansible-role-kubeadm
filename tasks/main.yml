@@ -1,6 +1,11 @@
+- name: check variables are defined
+  assert:
+    that:
+      - cluster_name is defined
+
 - name: Get latest kubeadm release version
   uri:
-    url: "{{ archive_root_url }}/release.txt"
+    url: "{{ archive_root_url }}/{{ cluster_name }}release.txt"
     return_content: true
   register: release_version
 
