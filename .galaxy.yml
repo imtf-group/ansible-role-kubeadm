@@ -1,0 +1,9 @@
+namespace: imtf
+name: kubeadm
+version: 1.0.0
+readme: README.md
+authors:
+  - TechOps
+description: An Ansible role to install kubeadm from a custom S3-based installer
+license: MIT
+dependencies: {}
